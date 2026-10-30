@@ -1,0 +1,28 @@
+[package]
+name = "claudechain"
+version = "1.0.0"
+description = "Claude Code 住宅IP链式代理"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "time", "sync", "macros", "signal"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
+webpki-roots = "1"
+regex = "1"
+base64 = "0.22"
+percent-encoding = "2"
+dirs = "6"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClaudeChain</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <img src="icon.png" alt="">
+      <div>
+        <div class="name">ClaudeChain</div>
+        <div class="state"><i id="dot" class="dot"></i><span id="state-text">启动中…</span></div>
+      </div>
+    </div>
+    <div class="bar-actions">
+      <button id="btn-settings" class="icon" title="设置" aria-label="设置">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <label class="switch" title="链路开关"><input id="chain" type="checkbox" aria-label="链路开关"><span></span></label>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="card">
+      <div class="card-head">
+        <h2>链路</h2>
+        <button id="btn-check" class="text-btn">立即检测</button>
+      </div>
+      <ol class="chain">
+        <li class="node node-local">
+          <span class="pin"></span>
+          <div class="node-body">
+            <div class="row"><b>本机</b><span class="muted small">你的电脑</span></div>
+          </div>
+        </li>
+        <li class="node node-1" id="hop1">
+          <span class="pin">1</span>
+          <div class="node-body">
+            <div class="row"><b><span id="hop1-title">前置节点</span> <span class="via" id="hop1-via"></span></b><code id="hop1-ip">—</code></div>
+            <div class="row sub"><span id="hop1-meta"></span><span id="hop1-ms"></span></div>
+          </div>
+        </li>
+        <li class="node node-2" id="hop2">
+          <span class="pin">2</span>
+          <div class="node-body">
+            <div class="row"><b>住宅IP <em class="tag">Claude 看到的</em></b><code id="hop2-ip">—</code></div>
+            <div class="row sub"><span id="hop2-meta"></span><span id="hop2-ms"></span></div>
+          </div>
+        </li>
+        <li class="node node-dest" id="dest">
+          <span class="pin"></span>
+          <div class="node-body">
+            <div class="row"><b>Claude API</b><span id="api-ms" class="muted">—</span></div>
+          </div>
+        </li>
+      </ol>
+      <div id="seen" class="seen" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>Claude 只能看到 <b id="seen-ip"></b>。第 1 跳包在加密隧道里，目标网站看不到。</span>
+      </div>
+      <div id="alert" class="alert" hidden></div>
+    </section>
+
+    <section class="card" id="leak-card" hidden>
+      <div class="card-head">
+        <h2>漏网检查</h2>
+        <span id="leak-badge" class="pill"></span>
+      </div>
+      <p id="leak-text" class="leak-text"></p>
+    </section>
+
+    <section class="launch">
+      <div class="folder" id="folder">
+        <svg class="folder-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <div class="folder-text">
+          <span class="folder-name" id="folder-name">—</span>
+          <span class="folder-path" id="folder-path"></span>
+        </div>
+        <button class="btn" id="btn-pick">选择…</button>
+      </div>
+      <div class="recent" id="recent"></div>
+      <button id="btn-launch" class="primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>
+        <span id="launch-text">启动 Claude Code</span>
+      </button>
+      <p class="hint">在新终端窗口打开 · 仅该窗口走住宅IP · 链路不通时不会启动<br>也可以把文件夹拖进窗口</p>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>请求去向</h2>
+        <span class="muted small" id="totals"></span>
+      </div>
+      <ul id="hosts" class="hosts"></ul>
+      <p id="hosts-empty" class="empty">暂无请求。Claude Code 发出请求后，这里会显示每个域名走了哪条线路。</p>
+    </section>
+  </main>
+
+  <main id="settings" hidden>
+    <form id="form" autocomplete="off">
+      <section class="card">
+        <h2>住宅代理（第 2 跳）</h2>
+        <div class="paste">
+          <input id="link" placeholder="粘贴 socks5:// 链接，支持二维码里的 Base64 格式">
+          <button type="button" class="btn" id="btn-parse">识别</button>
+        </div>
+        <div class="grid">
+          <label>地址<input name="host" placeholder="IP 或域名"></label>
+          <label>端口<input name="port" type="number" min="1" max="65535"></label>
+          <label>用户名<input name="username" placeholder="无认证可留空"></label>
+          <label>密码
+            <span class="pw"><input name="password" type="password" placeholder="无认证可留空"><button type="button" class="btn" id="btn-eye">显示</button></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>前置代理（第 1 跳）</h2>
+        <label class="check"><input type="checkbox" name="frontEnabled"> 先经过本机代理再连住宅IP</label>
+        <div class="grid" id="front-fields">
+          <label>地址<input name="frontHost"></label>
+          <label>SOCKS5 端口<input name="frontPort" type="number" min="1" max="65535"></label>
+        </div>
+        <div class="finder">
+          <button type="button" class="btn" id="btn-find">自动查找</button>
+          <span id="find-result" class="note"></span>
+        </div>
+        <p class="note">FlClash 7890 · Clash Verge 7897 · v2rayN 10808。国内直连住宅IP很不稳定，建议开启。<br>
+          在虚拟机里使用时，前置代理要填<b>宿主机</b>的地址，并在宿主机的 FlClash 里打开「允许局域网连接」。</p>
+      </section>
+
+      <section class="card">
+        <h2>分流</h2>
+        <label class="check"><input type="checkbox" name="splitMode"> 只有 Claude 相关域名走住宅IP</label>
+        <textarea name="residentialDomains" rows="3" spellcheck="false"></textarea>
+        <p class="note" id="split-note"></p>
+        <label class="inline">本地端口<input name="localPort" type="number" min="1" max="65535"></label>
+      </section>
+
+      <section class="card">
+        <h2>启动</h2>
+        <label class="check"><input type="checkbox" name="autoStart"> 打开 App 时自动连接链路</label>
+        <label class="check"><input type="checkbox" name="launchClaudeOnOpen"> 打开 App 时自动启动 Claude Code（默认关闭）</label>
+      </section>
+
+      <section class="card">
+        <h2>高级</h2>
+        <div class="toggle-row">
+          <div>
+            <b>Claude Code 全局走住宅IP</b>
+            <p class="note">写入 ~/.claude/settings.json，IDE 插件等所有会话都生效。关闭开关、停止链路或退出 App 时自动还原。</p>
+          </div>
+          <label class="switch"><input id="global" type="checkbox" aria-label="Claude Code 全局走住宅IP"><span></span></label>
+        </div>
+        <p class="note mono" id="data-dir"></p>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="btn" id="btn-back">返回</button>
+        <button type="submit" class="primary">保存</button>
+      </div>
+    </form>
+  </main>
+
+  <div id="drop" class="drop" hidden><div>松开鼠标，选中这个文件夹</div></div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
